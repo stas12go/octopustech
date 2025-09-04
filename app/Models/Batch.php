@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\BatchStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -24,8 +25,13 @@ class Batch extends Model
         'error_message',
         'processing_options',
         'user_id',
-        'completed_at',
+        'processed_at',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function files(): HasMany
     {
@@ -53,7 +59,7 @@ class Batch extends Model
         return [
             'status'             => BatchStatusEnum::class,
             'processing_options' => 'array',
-            'completed_at'       => 'datetime',
+            'processed_at'       => 'datetime',
         ];
     }
 }
