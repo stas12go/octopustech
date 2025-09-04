@@ -35,8 +35,8 @@ class BatchFileResource extends JsonResource
                 return Storage::disk('public')->url($this->original_path);
             }),
 
-            'created_at'         => $this->created_at->toISOString(),
-            'processed_at'       => $this->processed_at?->toISOString(),
+            'created_at'   => $this->created_at->format('d/m/y H:i:s'),
+            'processed_at' => $this->processed_at?->format('d/m/y H:i:s'),
         ];
     }
 }

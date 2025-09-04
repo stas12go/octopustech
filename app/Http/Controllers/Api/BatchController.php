@@ -64,9 +64,9 @@ class BatchController extends Controller
         // TODO ProcessImage::dispatch($batchFile->id)->onQueue('image-processing');
     }
 
-    public function show(string $id): JsonResource
+    public function show(Batch $batch): JsonResource
     {
-        $batch = Batch::with(['files'])->findOrFail($id);
+        $batch->load(['files', 'user']);
 
         return BatchResource::make($batch);
     }
