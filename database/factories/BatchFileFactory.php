@@ -27,7 +27,7 @@ class BatchFileFactory extends Factory
             'processed_path'     => "processed/{$this->faker->uuid}.{$extension}",
             'status'             => $this->faker->randomElement(BatchFileStatusEnum::cases()),
             'processing_options' => [
-                'operation' => ['crop', 'resize', 'normalize'],
+                'operation' => $this->faker->randomElement(['crop', 'resize', 'normalize']),
                 'width'     => $this->faker->numberBetween(100, 1920),
                 'height'    => $this->faker->numberBetween(100, 1080),
                 'quality'   => $this->faker->numberBetween(60, 100),

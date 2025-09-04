@@ -6,13 +6,17 @@ use App\Enums\BatchFileStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
+ * @property int $id
  * @property BatchFileStatusEnum $status
+ * @property string $original_name
+ * @property string $original_path
  * @property string $processed_path
  * @property string $error_message
- * @property Carbon $processed_at
+ * @property array $processing_options
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $processed_at
  */
 class BatchFile extends Model
 {

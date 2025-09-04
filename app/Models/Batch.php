@@ -9,9 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @property int $id
  * @property int $total_files
  * @property int $processed_files
  * @property int $failed_files
+ * @property string $error_message
+ * @property array $processing_options
+ * @property BatchStatusEnum $status
+ * @property float $progress
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $processed_at
+ * @property \Illuminate\Database\Eloquent\Collection<\App\Models\BatchFile> $files
+ * @property \App\Models\User $user
  */
 class Batch extends Model
 {
