@@ -2,13 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Enums\BatchFileStatusEnum;
+use App\Enums\FileStatusEnum;
 use App\Models\Batch;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BatchFile>
- */
 class BatchFileFactory extends Factory
 {
     /**
@@ -25,7 +22,7 @@ class BatchFileFactory extends Factory
             'original_name'      => "{$this->faker->word}.{$extension}",
             'original_path'      => "uploads/{$this->faker->uuid}.{$extension}",
             'processed_path'     => "processed/{$this->faker->uuid}.{$extension}",
-            'status'             => $this->faker->randomElement(BatchFileStatusEnum::cases()),
+            'status'             => $this->faker->randomElement(FileStatusEnum::cases()),
             'processing_options' => [
                 'operation' => $this->faker->randomElement(['crop', 'resize', 'normalize']),
                 'width'     => $this->faker->numberBetween(100, 1920),
@@ -33,7 +30,7 @@ class BatchFileFactory extends Factory
                 'quality'   => $this->faker->numberBetween(60, 100),
                 'crop'      => $this->faker->boolean(),
             ],
-            'error_message'      => fn(array $attributes) => $attributes['status'] === BatchFileStatusEnum::FAILED
+            'error_message'      => fn(array $attributes) => $attributes['status'] === FileStatusEnum::FAILED
                 ? $this->faker->sentence()
                 : null,
             'processed_at'       => fn(array $attributes) => in_array($attributes['status'], ['completed', 'failed'])
@@ -45,7 +42,7 @@ class BatchFileFactory extends Factory
     public function pending(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status'         => BatchFileStatusEnum::PENDING,
+            'status'         => FileStatusEnum::PENDING,
             'processed_path' => null,
             'error_message'  => null,
             'processed_at'   => null,
@@ -55,7 +52,7 @@ class BatchFileFactory extends Factory
     public function processing(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status'         => BatchFileStatusEnum::PROCESSING,
+            'status'         => FileStatusEnum::PROCESSING,
             'processed_path' => null,
             'error_message'  => null,
             'processed_at'   => null,
@@ -65,7 +62,7 @@ class BatchFileFactory extends Factory
     public function completed(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status'         => BatchFileStatusEnum::COMPLETED,
+            'status'         => FileStatusEnum::COMPLETED,
             'processed_path' => sprintf("processed/%s.%s", $this->faker->uuid, pathinfo($attributes['original_path'], PATHINFO_EXTENSION)),
             'error_message'  => null,
             'processed_at'   => now(),
@@ -75,7 +72,7 @@ class BatchFileFactory extends Factory
     public function failed(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status'         => BatchFileStatusEnum::FAILED,
+            'status'         => FileStatusEnum::FAILED,
             'processed_path' => null,
             'error_message'  => $this->faker->sentence(),
             'processed_at'   => now(),

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\BatchFileStatusEnum;
+use App\Enums\FileStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property \App\Models\Batch $batch
- * @property BatchFileStatusEnum $status
+ * @property FileStatusEnum $status
  * @property string $original_name
+ * @property string $extension
  * @property string $original_path
  * @property string $processed_path
  * @property string $error_message
@@ -19,13 +20,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $processed_at
  */
-class BatchFile extends Model
+class File extends Model
 {
     use HasFactory;
+
+    public const UPLOADED_PATH = 'uploads/';
+    public const PROCESSED_PATH = 'processed/';
 
     protected $fillable = [
         'batch_id',
         'original_name',
+        'extension',
         'original_path',
         'processed_path',
         'status',
@@ -41,14 +46,14 @@ class BatchFile extends Model
 
     public function markAsProcessing(): void
     {
-        $this->status = BatchFileStatusEnum::PROCESSING;
+        $this->status = FileStatusEnum::PROCESSING;
 
         $this->save();
     }
 
     public function markAsCompleted(string $processedPath): void
     {
-        $this->status = BatchFileStatusEnum::COMPLETED;
+        $this->status = FileStatusEnum::COMPLETED;
         $this->processed_path = $processedPath;
         $this->processed_at = now();
 
@@ -57,7 +62,7 @@ class BatchFile extends Model
 
     public function markAsFailed(string $errorMessage): void
     {
-        $this->status = BatchFileStatusEnum::FAILED;
+        $this->status = FileStatusEnum::FAILED;
         $this->error_message = $errorMessage;
         $this->processed_at = now();
 
@@ -67,7 +72,7 @@ class BatchFile extends Model
     protected function casts(): array
     {
         return [
-            'status'             => BatchFileStatusEnum::class,
+            'status'             => FileStatusEnum::class,
             'processing_options' => 'array',
             'processed_at'       => 'datetime',
         ];

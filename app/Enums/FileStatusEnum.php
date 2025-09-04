@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum BatchFileStatusEnum: int
+enum FileStatusEnum: int
 {
     case PENDING    = 0;
     case PROCESSING = 1;

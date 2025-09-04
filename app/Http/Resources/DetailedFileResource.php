@@ -2,13 +2,14 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\BatchFileStatusEnum;
+use App\Enums\FileStatusEnum;
+use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * @mixin \App\Models\BatchFile
+ * @mixin \App\Models\File
  */
 class DetailedFileResource extends JsonResource
 {
@@ -23,11 +24,11 @@ class DetailedFileResource extends JsonResource
             'file_size'          => $this->original_path && Storage::disk('public')->exists($this->original_path)
                 ? Storage::disk('public')->size($this->original_path)
                 : null,
-            'download_url'       => $this->when($this->status === BatchFileStatusEnum::COMPLETED && $this->processed_path, function () {
-                return Storage::disk('public')->url($this->processed_path);
+            'download_url'       => $this->when($this->status === FileStatusEnum::COMPLETED && $this->processed_path !== null, function () {
+                return Storage::disk('public')->url(File::PROCESSED_PATH . $this->processed_path . '.' . $this->extension);
             }),
-            'original_url'       => $this->when($this->original_path, function () {
-                return Storage::disk('public')->url($this->original_path);
+            'original_url'       => $this->when($this->original_path !== null, function () {
+                return Storage::disk('public')->url(File::UPLOADED_PATH . $this->original_path . '.' . $this->extension);
             }),
 
             'batch' => BatchResource::make($this->batch),

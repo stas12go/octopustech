@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\BatchFileStatusEnum;
+use App\Enums\FileStatusEnum;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,8 +18,8 @@ class DetailedBatchResource extends JsonResource
             'status'          => $this->status->name,
             'progress'        => $this->progress,
             'total_files'     => $this->files->count(),
-            'processed_files' => $this->getFilesCountByStatus(BatchFileStatusEnum::COMPLETED),
-            'failed_files'    => $this->getFilesCountByStatus(BatchFileStatusEnum::FAILED),
+            'processed_files' => $this->getFilesCountByStatus(FileStatusEnum::COMPLETED),
+            'failed_files'    => $this->getFilesCountByStatus(FileStatusEnum::FAILED),
 
             'files' => FileResource::collection($this->files),
             'user'  => UserResource::make($this->user),

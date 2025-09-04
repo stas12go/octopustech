@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\BatchFileStatusEnum;
 use App\Enums\BatchStatusEnum;
+use App\Enums\FileStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBatchRequest;
 use App\Http\Resources\DetailedBatchResource;
+use App\Jobs\ProcessImage;
 use App\Models\Batch;
-use App\Models\BatchFile;
+use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\UploadedFile;
@@ -33,7 +34,7 @@ class BatchController extends Controller
             return response()->json([
                 'message'     => 'Пакет файлов сохранён',
                 'batch_id'    => $batch->id,
-                'total_files' => $batch->total_files,
+                'total_files' => $batch->files->count(),
                 'status'      => $batch->status->name,
             ]);
         } catch (\Exception $e) {
@@ -46,20 +47,25 @@ class BatchController extends Controller
 
     private function processFile(UploadedFile $file, Batch $batch, array $processingOptions)
     {
-        $uuid = Str::uuid();
         $extension = $file->getClientOriginalExtension();
-        $originalPath = "uploads/{$uuid}.{$extension}";
+        $originalPath = Str::uuid()->toString();
 
-        Storage::disk('public')->put($originalPath, file_get_contents($file));
+        Storage::disk('public')->put(File::UPLOADED_PATH . $originalPath . '.' . $extension, file_get_contents($file));
 
-        $batchFile = BatchFile::query()->create([
+        $attributes = [
             'batch_id'           => $batch->id,
             'original_name'      => $file->getClientOriginalName(),
+            'extension'          => $extension,
             'original_path'      => $originalPath,
-            'status'             => BatchFileStatusEnum::PENDING,
+            'status'             => FileStatusEnum::PENDING,
             'processing_options' => $processingOptions,
-        ]);
-        // TODO ProcessImage::dispatch($batchFile->id)->onQueue('image-processing');
+        ];
+
+        //        dd($attributes);
+
+        $batchFile = File::query()->create($attributes);
+
+        ProcessImage::dispatch($batchFile->id)->onQueue('image-processing');
     }
 
     public function show(Batch $batch): JsonResource

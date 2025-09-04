@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\BatchFileStatusEnum;
+use App\Enums\FileStatusEnum;
 use App\Enums\BatchStatusEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property BatchStatusEnum $status
  * @property float $progress
- * @property Collection<BatchFile> $files
+ * @property Collection<File> $files
  * @property User $user
  * @property Carbon $created_at
  * @property Carbon $processed_at
@@ -46,17 +46,40 @@ class Batch extends Model
             return 0;
         }
 
-        return round(($this->getFilesCountByStatus(BatchFileStatusEnum::COMPLETED) + $this->getFilesCountByStatus(BatchFileStatusEnum::FAILED)) / $this->files->count() * 100, 2);
+        return round(($this->getFilesCountByStatus(FileStatusEnum::COMPLETED) + $this->getFilesCountByStatus(FileStatusEnum::FAILED)) / $this->files->count() * 100, 2);
     }
 
-    public function getFilesCountByStatus(BatchFileStatusEnum $status): int
+    public function getFilesCountByStatus(FileStatusEnum $status): int
     {
-        return $this->files()->where('status', $status)->count();
+        return $this->files()->where('status', $status->value)->count();
     }
 
     public function files(): HasMany
     {
-        return $this->hasMany(BatchFile::class);
+        return $this->hasMany(File::class);
+    }
+
+    public function updateStatus(): void
+    {
+        $pending = $this->getFilesCountByStatus(FileStatusEnum::PENDING);
+        $processing = $this->getFilesCountByStatus(FileStatusEnum::PROCESSING);
+        $completed = $this->getFilesCountByStatus(FileStatusEnum::COMPLETED);
+        $failed = $this->getFilesCountByStatus(FileStatusEnum::FAILED);
+        $total = $this->files->count();
+
+        if ($pending > 0 || $processing > 0) {
+            $this->status = BatchStatusEnum::PROCESSING;
+        } elseif ($failed === $total) {
+            $this->status = BatchStatusEnum::FAILED;
+        } elseif ($completed === $total) {
+            $this->status = BatchStatusEnum::COMPLETED;
+            $this->processed_at = now();
+        } elseif ($completed > 0 || $failed > 0) {
+            $this->status = BatchStatusEnum::PARTIAL;
+            $this->processed_at = now();
+        }
+
+        $this->save();
     }
 
     protected function casts(): array
