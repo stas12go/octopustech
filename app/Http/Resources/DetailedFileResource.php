@@ -10,13 +10,8 @@ use Illuminate\Support\Facades\Storage;
 /**
  * @mixin \App\Models\BatchFile
  */
-class BatchFileResource extends JsonResource
+class DetailedFileResource extends JsonResource
 {
-    /**
-     * Transform the resource collection into an array.
-     *
-     * @return array<int|string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
@@ -34,6 +29,8 @@ class BatchFileResource extends JsonResource
             'original_url'       => $this->when($this->original_path, function () {
                 return Storage::disk('public')->url($this->original_path);
             }),
+
+            'batch' => BatchResource::make($this->batch),
 
             'created_at'   => $this->created_at->format('d/m/y H:i:s'),
             'processed_at' => $this->processed_at?->format('d/m/y H:i:s'),

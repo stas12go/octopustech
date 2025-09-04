@@ -14,11 +14,6 @@ return new class extends Migration {
             $table->id();
 
             $table->tinyInteger('status')->default(0);
-            $table->tinyInteger('total_files');
-            $table->tinyInteger('processed_files')->default(0);
-            $table->tinyInteger('failed_files')->default(0);
-            $table->text('error_message')->nullable();
-            $table->json('processing_options')->comment('Настройки обработки файлов.');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
 
             $table->timestamps();

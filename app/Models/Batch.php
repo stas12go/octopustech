@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\BatchFileStatusEnum;
 use App\Enums\BatchStatusEnum;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,17 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
- * @property int $total_files
- * @property int $processed_files
- * @property int $failed_files
- * @property string $error_message
- * @property array $processing_options
  * @property BatchStatusEnum $status
  * @property float $progress
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $processed_at
- * @property \Illuminate\Database\Eloquent\Collection<\App\Models\BatchFile> $files
- * @property \App\Models\User $user
+ * @property Collection<BatchFile> $files
+ * @property User $user
+ * @property Carbon $created_at
+ * @property Carbon $processed_at
  */
 class Batch extends Model
 {
@@ -42,25 +40,24 @@ class Batch extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getProgressAttribute(): float
+    {
+        if ($this->files->count() === 0) {
+            return 0;
+        }
+
+        return round(($this->getFilesCountByStatus(BatchFileStatusEnum::COMPLETED) + $this->getFilesCountByStatus(BatchFileStatusEnum::FAILED)) / $this->files->count() * 100, 2);
+    }
+
+    public function getFilesCountByStatus(BatchFileStatusEnum $status): int
+    {
+        return $this->files()->where('status', $status)->count();
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(BatchFile::class);
     }
-
-    public function getProgressAttribute(): float
-    {
-        if ($this->total_files === 0) {
-            return 0;
-        }
-
-        return round(($this->processed_files + $this->failed_files) / $this->total_files * 100, 2);
-    }
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
 
     protected function casts(): array
 

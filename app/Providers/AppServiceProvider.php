@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Batch;
+use App\Models\BatchFile;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,5 +23,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::model('batch', Batch::class);
+        Route::model('file', BatchFile::class);
     }
 }

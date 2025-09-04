@@ -6,7 +6,7 @@ use App\Enums\BatchFileStatusEnum;
 use App\Enums\BatchStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBatchRequest;
-use App\Http\Resources\BatchResource;
+use App\Http\Resources\DetailedBatchResource;
 use App\Models\Batch;
 use App\Models\BatchFile;
 use Illuminate\Http\JsonResponse;
@@ -22,14 +22,12 @@ class BatchController extends Controller
         try {
             /** @var Batch $batch */
             $batch = Batch::query()->create([
-                'user_id'            => 1,// тестовое решение
-                'status'             => BatchStatusEnum::PENDING,
-                'total_files'        => count($request->file('files')),
-                'processing_options' => $request->processing_options ?? [],
+                'user_id' => 1,// тестовое решение
+                'status'  => BatchStatusEnum::PENDING,
             ]);
 
             foreach ($request->file('files') as $index => $item) {
-                $this->processFile($item, $batch, $index, $request->processing_options[$index]);
+                $this->processFile($item, $batch, $request->processing_options[$index]);
             }
 
             return response()->json([
@@ -46,7 +44,7 @@ class BatchController extends Controller
         }
     }
 
-    private function processFile(UploadedFile $file, Batch $batch, int|string $index, array $processingOptions)
+    private function processFile(UploadedFile $file, Batch $batch, array $processingOptions)
     {
         $uuid = Str::uuid();
         $extension = $file->getClientOriginalExtension();
@@ -68,6 +66,6 @@ class BatchController extends Controller
     {
         $batch->load(['files', 'user']);
 
-        return BatchResource::make($batch);
+        return DetailedBatchResource::make($batch);
     }
 }

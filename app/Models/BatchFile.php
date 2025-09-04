@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
+ * @property \App\Models\Batch $batch
  * @property BatchFileStatusEnum $status
  * @property string $original_name
  * @property string $original_path
