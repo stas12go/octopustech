@@ -2,13 +2,16 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Batch;
+use App\Models\File;
 use App\Rules\ProcessingOptionsMatchFiles;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
- * @mixin \App\Models\Batch
+ * @mixin Batch
+ * @mixin File
  */
 class StoreBatchRequest extends FormRequest
 {
