@@ -56,7 +56,7 @@ class ProcessImage implements ShouldQueue
         $processedPath = "{$file->original_path}_{$file->processing_options['operation']}";
 
         sleep(rand(1, 5));
-        Storage::disk('public')->copy($file->original_path, File::PROCESSED_PATH . $processedPath . '.' . $file->extension);
+        Storage::disk('public')->copy($file->full_original_path, File::PROCESSED_DIR . $processedPath . '.' . $file->extension);
 
         return $processedPath;
     }

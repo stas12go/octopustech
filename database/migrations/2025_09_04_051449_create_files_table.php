@@ -5,9 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('files', function (Blueprint $table) {
@@ -18,7 +15,7 @@ return new class extends Migration {
             $table->string('extension');
             $table->string('original_path');
             $table->string('processed_path')->nullable();
-            $table->tinyInteger('status')->default(0);
+            $table->unsignedTinyInteger('status')->default(0);
             $table->text('error_message')->nullable();
             $table->json('processing_options')->comment('Настройки обработки файла.');
 
@@ -27,11 +24,8 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('batch_files');
+        Schema::dropIfExists('files');
     }
 };

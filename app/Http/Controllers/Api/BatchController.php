@@ -50,7 +50,7 @@ class BatchController extends Controller
         $extension = $file->getClientOriginalExtension();
         $originalPath = Str::uuid()->toString();
 
-        Storage::disk('public')->put(File::UPLOADED_PATH . $originalPath . '.' . $extension, file_get_contents($file));
+        Storage::disk('public')->put(File::UPLOADED_DIR . $originalPath . '.' . $extension, file_get_contents($file));
 
         $attributes = [
             'batch_id'           => $batch->id,

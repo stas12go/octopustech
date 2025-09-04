@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
-use App\Enums\FileStatusEnum;
 use App\Enums\BatchStatusEnum;
+use App\Enums\FileStatusEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 /**
+ * Модель соответствует сущности пакета (батча) документов.
+ *
  * @property int $id
  * @property BatchStatusEnum $status
- * @property float $progress
+ * @property-read  float $progress
  * @property Collection<File> $files
  * @property User $user
  * @property Carbon $created_at
- * @property Carbon $processed_at
+ * @property ?Carbon $processed_at
  */
 class Batch extends Model
 {
@@ -26,20 +29,22 @@ class Batch extends Model
 
     protected $fillable = [
         'status',
-        'total_files',
-        'processed_files',
-        'failed_files',
         'error_message',
-        'processing_options',
         'user_id',
         'processed_at',
     ];
 
+    /**
+     * Пользователь, отправивший пакет изображений.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Текущий прогресс обработки пакета.
+     */
     public function getProgressAttribute(): float
     {
         if ($this->files->count() === 0) {
@@ -49,16 +54,25 @@ class Batch extends Model
         return round(($this->getFilesCountByStatus(FileStatusEnum::COMPLETED) + $this->getFilesCountByStatus(FileStatusEnum::FAILED)) / $this->files->count() * 100, 2);
     }
 
+    /**
+     * Получение кол-ва файлов, находящихся в определённом статусе.
+     */
     public function getFilesCountByStatus(FileStatusEnum $status): int
     {
-        return $this->files()->where('status', $status->value)->count();
+        return Cache::remember("BATCH_{$this->id}_{$status->name}_FILES_COUNT", 60, fn() => $this->files()->where('status', $status->value)->count());
     }
 
+    /**
+     * Коллекция файлов, отправленных в пакете.
+     */
     public function files(): HasMany
     {
         return $this->hasMany(File::class);
     }
 
+    /**
+     * Обновление статуса пакета на основе статусов файлов, входящих в пакет.
+     */
     public function updateStatus(): void
     {
         $pending = $this->getFilesCountByStatus(FileStatusEnum::PENDING);
@@ -83,12 +97,10 @@ class Batch extends Model
     }
 
     protected function casts(): array
-
     {
         return [
-            'status'             => BatchStatusEnum::class,
-            'processing_options' => 'array',
-            'processed_at'       => 'datetime',
+            'status'       => BatchStatusEnum::class,
+            'processed_at' => 'datetime',
         ];
     }
 }
