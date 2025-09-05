@@ -57,15 +57,7 @@ composer install
 ### 4. Запуск workers
 
 ```bash
-# Запускаем обработчик очередей
-./vendor/bin/sail artisan queue:work redis --queue=image-processing --timeout=300 --sleep=0 --tries=3
-
-# Или запускаем несколько workers для параллельной обработки
-for i in {1..4}; do
-    ./vendor/bin/sail artisan queue:work redis --queue=image-processing --timeout=300 --sleep=0 --tries=3
-done
-
-# Запускаем Horizon для мониторинга
+# хорайзон настроен на 2 процесса с двумя
 ./vendor/bin/sail artisan horizon
 ```
 
