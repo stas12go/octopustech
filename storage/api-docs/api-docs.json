@@ -3,17 +3,23 @@
     "info": {
         "title": "API пакетного обработчика изображений",
         "description": "API для асинхронной обработки пакета изображений",
-        "version": "1.0.0."
+        "version": "1.0.0"
     },
+    "servers": [
+        {
+            "url": "http://localhost:80/api",
+            "description": "Локальный сервер разработки"
+        }
+    ],
     "paths": {
-        "/api/batches": {
+        "/batches": {
             "post": {
                 "tags": [
                     "Batches"
                 ],
                 "summary": "Создание нового пакета",
                 "description": "Загрузка множества изображений (пакета) для их асинхронной обработки",
-                "operationId": "bf81da9bbdb2ff772f26c82436a22eb7",
+                "operationId": "02a72f27d45eda616aec67d6f5f619b4",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -104,14 +110,14 @@
                 }
             }
         },
-        "/api/batches/{id}": {
+        "/batches/{id}": {
             "get": {
                 "tags": [
                     "Batches"
                 ],
                 "summary": "Получение статуса пакета",
                 "description": "Получение текущего статуса и детальной информации о пакете обработки",
-                "operationId": "ca685d4fc2e9f8def28237324bd3ef08",
+                "operationId": "477625044c8be58ace8b634ea4f06fe8",
                 "parameters": [
                     {
                         "name": "id",
@@ -148,14 +154,14 @@
                 }
             }
         },
-        "/api/batches/{batch}/files/{file}": {
+        "/batches/{batch}/files/{file}": {
             "get": {
                 "tags": [
                     "Files"
                 ],
                 "summary": "Получение детальной информации о файле",
                 "description": "Получение детальной информации о конкретном файле в пакете обработки",
-                "operationId": "648c3903139f965f341ef7239ca494d7",
+                "operationId": "2f257297416df8b3aed3e352a6a295a9",
                 "parameters": [
                     {
                         "name": "batch",
@@ -478,11 +484,11 @@
     "tags": [
         {
             "name": "Batches",
-            "description": "Batches"
+            "description": "Операции с пакетами обработки"
         },
         {
             "name": "Files",
-            "description": "Files"
+            "description": "Операции с файлами"
         }
     ]
 }

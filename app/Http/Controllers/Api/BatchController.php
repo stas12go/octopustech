@@ -12,10 +12,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OAT;
 
-#[OAT\Info(version: '1.0.0.', description: 'API для асинхронной обработки пакета изображений', title: 'API пакетного обработчика изображений')]/* TODO думаю, это должно быть не здесь, а в энтрипоинте приложения */
 class BatchController extends Controller
 {
-    #[OAT\Post(path: '/api/batches', description: 'Загрузка множества изображений (пакета) для их асинхронной обработки', summary: 'Создание нового пакета', requestBody: new OAT\RequestBody(required: true,
+    #[OAT\Post(path: '/batches', description: 'Загрузка множества изображений (пакета) для их асинхронной обработки', summary: 'Создание нового пакета', requestBody: new OAT\RequestBody(required: true,
         content: new OAT\MediaType(mediaType: 'multipart/form-data', schema: new OAT\Schema(required: ['files[]'], properties: [
             new OAT\Property(property: 'files[]',
                 description: 'Массив файлов изображений (1-20 файлов, каждый до 15MB, форматы: jpg, jpeg, png, bmp, webp)',
@@ -62,7 +61,7 @@ class BatchController extends Controller
         }
     }
 
-    #[OAT\Get(path: '/api/batches/{id}', description: 'Получение текущего статуса и детальной информации о пакете обработки', summary: 'Получение статуса пакета', tags: ['Batches'], parameters: [
+    #[OAT\Get(path: '/batches/{id}', description: 'Получение текущего статуса и детальной информации о пакете обработки', summary: 'Получение статуса пакета', tags: ['Batches'], parameters: [
         new OAT\Parameter(name: 'id', description: 'ID пакета обработки', in: 'path', required: true, schema: new OAT\Schema(type: 'integer', example: 1)),
     ], responses: [
         new OAT\Response(response: 200, description: 'Детальная информация о пакете', content: new OAT\JsonContent(ref: '#/components/schemas/DetailedBatchResource')),

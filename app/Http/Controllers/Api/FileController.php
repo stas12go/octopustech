@@ -12,7 +12,7 @@ use OpenApi\Attributes as OAT;
 
 class FileController extends Controller
 {
-    #[OAT\Get(path: '/api/batches/{batch}/files/{file}', description: 'Получение детальной информации о конкретном файле в пакете обработки', summary: 'Получение детальной информации о файле', tags: ['Files'], parameters: [
+    #[OAT\Get(path: '/batches/{batch}/files/{file}', description: 'Получение детальной информации о конкретном файле в пакете обработки', summary: 'Получение детальной информации о файле', tags: ['Files'], parameters: [
         new OAT\Parameter(name: 'batch', description: 'ID пакета обработки', in: 'path', required: true, schema: new OAT\Schema(type: 'integer', example: 1)),
         new OAT\Parameter(name: 'file', description: 'ID файла в пакете', in: 'path', required: true, schema: new OAT\Schema(type: 'integer', example: 1)),
     ], responses: [
