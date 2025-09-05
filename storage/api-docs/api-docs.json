@@ -1,0 +1,488 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API пакетного обработчика изображений",
+        "description": "API для асинхронной обработки пакета изображений",
+        "version": "1.0.0."
+    },
+    "paths": {
+        "/api/batches": {
+            "post": {
+                "tags": [
+                    "Batches"
+                ],
+                "summary": "Создание нового пакета",
+                "description": "Загрузка множества изображений (пакета) для их асинхронной обработки",
+                "operationId": "bf81da9bbdb2ff772f26c82436a22eb7",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "files[]"
+                                ],
+                                "properties": {
+                                    "files[]": {
+                                        "description": "Массив файлов изображений (1-20 файлов, каждый до 15MB, форматы: jpg, jpeg, png, bmp, webp)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "processing_options": {
+                                        "description": "JSON строка с массивом опций обработки для каждого файла",
+                                        "type": "string",
+                                        "example": "[{\"operation\": \"resize\", \"width\": 800}, {\"operation\": \"crop\", \"width\": 400}]"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Пакет файлов сохранён",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Пакет файлов сохранён"
+                                        },
+                                        "batch_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total_files": {
+                                            "type": "integer",
+                                            "example": 5
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "PENDING"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сохранения пакета файлов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Ошибка сохранения пакета файлов"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Пожалуйста, повторите позже"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/{id}": {
+            "get": {
+                "tags": [
+                    "Batches"
+                ],
+                "summary": "Получение статуса пакета",
+                "description": "Получение текущего статуса и детальной информации о пакете обработки",
+                "operationId": "ca685d4fc2e9f8def28237324bd3ef08",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID пакета обработки",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Детальная информация о пакете",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetailedBatchResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ресурс не найден",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/batches/{batch}/files/{file}": {
+            "get": {
+                "tags": [
+                    "Files"
+                ],
+                "summary": "Получение детальной информации о файле",
+                "description": "Получение детальной информации о конкретном файле в пакете обработки",
+                "operationId": "648c3903139f965f341ef7239ca494d7",
+                "parameters": [
+                    {
+                        "name": "batch",
+                        "in": "path",
+                        "description": "ID пакета обработки",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "description": "ID файла в пакете",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Детальная информация о файле",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetailedFileResource"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ресурс не найден",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "DetailedBatchResource": {
+                "description": "Детальная информация о пакете обработки",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "processing",
+                            "completed",
+                            "failed",
+                            "partial"
+                        ],
+                        "example": "processing"
+                    },
+                    "progress": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50.5
+                    },
+                    "total_files": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "processed_files": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "failed_files": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "error_message": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FileResource"
+                        }
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:30:00"
+                    },
+                    "processed_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:35:00",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DetailedFileResource": {
+                "description": "Детальная информация о файле обработки",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "original_name": {
+                        "type": "string",
+                        "example": "image.jpg"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "PROCESSING",
+                            "COMPLETED",
+                            "FAILED"
+                        ],
+                        "example": "COMPLETED"
+                    },
+                    "processing_options": {
+                        "properties": {
+                            "operation": {
+                                "type": "string",
+                                "enum": [
+                                    "resize",
+                                    "crop",
+                                    "normalize"
+                                ]
+                            },
+                            "width": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "height": {
+                                "type": "integer",
+                                "minimum": 1
+                            },
+                            "quality": {
+                                "type": "integer",
+                                "maximum": 100,
+                                "minimum": 1
+                            },
+                            "crop": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object",
+                        "example": {
+                            "operation": "resize",
+                            "width": 800,
+                            "quality": 90
+                        },
+                        "nullable": true
+                    },
+                    "error_message": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "original_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "http://localhost/storage/uploads/abc123.jpg"
+                    },
+                    "original_file_size": {
+                        "type": "integer",
+                        "example": 1024567,
+                        "nullable": true
+                    },
+                    "processed_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "example": "http://localhost/storage/processed/abc123_processed.jpg",
+                        "nullable": true
+                    },
+                    "processed_file_size": {
+                        "type": "integer",
+                        "example": 987654,
+                        "nullable": true
+                    },
+                    "batch": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "PENDING",
+                                        "PROCESSING",
+                                        "COMPLETED",
+                                        "FAILED",
+                                        "PARTIAL"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "example": {
+                            "id": 1,
+                            "status": "PENDING"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:30:00"
+                    },
+                    "processed_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:32:15",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "FileResource": {
+                "description": "Базовая информация о файле в пакете обработки",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "processing",
+                            "completed",
+                            "failed"
+                        ],
+                        "example": "completed"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:30:00"
+                    },
+                    "processed_at": {
+                        "type": "string",
+                        "example": "15/01/24 10:32:15",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "description": "Базовая информация о пользователе",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Test User"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "description": "Ошибка валидации данных",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Ошибка валидации"
+                    },
+                    "messages": {
+                        "type": "object",
+                        "example": {
+                            "processing_options.0.operation.string": [
+                                "Тип операции   должен быть строкой"
+                            ],
+                            "files.1.mimes": [
+                                "Некорректный mime-тип файла"
+                            ]
+                        },
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "NotFoundError": {
+                "description": "Ресурс не найден",
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Not found"
+                    },
+                    "messages": {
+                        "type": "object",
+                        "example": "The requested resource was not found",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Batches",
+            "description": "Batches"
+        },
+        {
+            "name": "Files",
+            "description": "Files"
+        }
+    ]
+}
