@@ -21,7 +21,7 @@ class FileController extends Controller
     ])]
     public function show(Batch $batch, File $file): JsonResource
     {
-        $file->load('batch');
+        $file->loadMissing('batch');
 
         if ($file->batch->id !== $batch->id) {
             throw new ModelNotFoundException();

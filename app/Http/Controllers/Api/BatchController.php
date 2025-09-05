@@ -42,6 +42,7 @@ class BatchController extends Controller
         try {
             $batch = $batchService->process($request);
 
+            // Думаю, нет смысла создавать ресурсы на подобного рода ответы, т.к. они достаточно уникальны
             return response()->json([
                 'message'     => 'Пакет файлов сохранён',
                 'batch_id'    => $batch->id,
@@ -49,11 +50,12 @@ class BatchController extends Controller
                 'status'      => $batch->status->name,
             ], 201);
         } catch (\Exception $e) {
-            Log::error('Ошибка сохранения пакета файлов', [
+            logger()->error('Ошибка сохранения пакета файлов', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTrace(),
             ]);
 
+            // Думаю, нет смысла создавать ресурсы на подобного рода ответы, т.к. они достаточно уникальны
             return response()->json([
                 'error'   => 'Ошибка сохранения пакета файлов',
                 'message' => 'Пожалуйста, повторите позже',

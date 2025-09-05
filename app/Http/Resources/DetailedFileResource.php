@@ -28,7 +28,7 @@ use OpenApi\Attributes as OAT;
     ], type: 'object'), example: [
         'id'     => 1,
         'status' => 'PENDING',
-    ]),
+    ]),/* да, я схитрил и описал BatchResource здесь =) */
     new OAT\Property(property: 'created_at', type: 'string', example: '15/01/24 10:30:00'),
     new OAT\Property(property: 'processed_at', type: 'string', example: '15/01/24 10:32:15', nullable: true),
 ], type: 'object')]
