@@ -20,6 +20,14 @@ class ForceJsonResponse
                 $response->headers->all());
         }
 
+        // Преобразуем 404 ошибки в JSON
+        if ($response->isNotFound()) {
+            return response()->json([
+                'error'   => 'Not found',
+                'message' => 'The requested resource was not found',
+            ], 404);
+        }
+
         return $response;
     }
 }
