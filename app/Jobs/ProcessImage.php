@@ -40,7 +40,7 @@ class ProcessImage implements ShouldQueue
             $file->markAsFailed($e->getMessage());
             $file->batch->updateStatus();
 
-            throw $e;
+            $this->fail($e);
         }
     }
 
@@ -62,7 +62,6 @@ class ProcessImage implements ShouldQueue
 
     public function fail(\Throwable $exception = null)
     {
-        // TODO is method correct?
         logger()->error('Ошибка при обработке файла', [
             'file_id' => $this->fileId,
             'message' => $exception->getMessage(),
