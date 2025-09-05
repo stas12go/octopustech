@@ -44,6 +44,8 @@ class ProcessImage implements ShouldQueue
 
     private function process(File $file): string
     {
+        sleep(5);
+
         $success = fake()->boolean(67);
 
         if (!$success) {
@@ -52,7 +54,6 @@ class ProcessImage implements ShouldQueue
 
         $processedPath = "{$file->original_path}_{$file->processing_options['operation']}";
 
-        sleep(10);
         Storage::disk('public')->copy($file->full_original_path, File::PROCESSED_DIR . $processedPath . '.' . $file->extension);
 
         return $processedPath;
@@ -64,5 +65,7 @@ class ProcessImage implements ShouldQueue
             'file_id' => $this->fileId,
             'message' => $exception->getMessage(),
         ]);
+
+        throw $exception;
     }
 }
